@@ -2,54 +2,31 @@ import React from 'react'
 import {connect} from 'react-redux'
 import {moveClockwise, moveCounterClockwise} from '../state/action-creators'
 
+function Wheel(props) {
 
-
-
-const Wheel = (props) => {
-
-  const {wheel, moveClockwise, moveCounterClockwise} = props;
-
-  const cogs = [0, 1, 2, 3, 4, 5];
-
-  const handleClockwise = () => {
-    props.moveClockwise(wheel)
-  }
-
-  const handleCounterClockwise = () => {
-    props.moveCounterClockwise(wheel)
-  }
-
+  const {wheel, moveClockwise, moveCounterClockwise} = props
 
   return (
     <div id="wrapper">
       <div id="wheel">
-        {cogs.map((val, idx) => {
-          if (val === wheel) {
-            return (<div value={val} key={idx} className='cog active' style={{ '--i': val }}>B</div>)
-          } else {
-            return (<div value = {val} key={idx} className='cog' style={{'--i': val}} ></div>)
-          }
-        })}
-
-        {/* <div className="cog active" style={{ "--i": 0 }}>B</div>
-        <div className="cog " style={{ "--i": 1 }}></div>
-        <div className="cog " style={{ "--i": 2 }}></div>
-        <div className="cog " style={{ "--i": 3 }}></div>
-        <div className="cog " style={{ "--i": 4 }}></div>
-        <div className="cog " style={{ "--i": 5 }}></div>--i is a custom CSS property, no need to touch that nor the style object */}
+        <div className={ wheel === 0 ? "cog active": "cog"} style={{ "--i": 0 }}>{ wheel === 0 ? "B": ""}</div>
+        <div className={ wheel === 1 ? "cog active": "cog"} style={{ "--i": 1 }}>{ wheel === 1 ? "B": ""}</div>
+        <div className={ wheel === 2 ? "cog active": "cog"} style={{ "--i": 2 }}>{ wheel === 2 ? "B": ""}</div>
+        <div className={ wheel === 3 ? "cog active": "cog"} style={{ "--i": 3 }}>{ wheel === 3 ? "B": ""}</div>
+        <div className={ wheel === 4 ? "cog active": "cog"} style={{ "--i": 4 }}>{ wheel === 4 ? "B": ""}</div>
+        <div className={ wheel === 5 ? "cog active": "cog"} style={{ "--i": 5 }}>{ wheel === 5 ? "B": ""}</div>{/* --i is a custom CSS property, no need to touch that nor the style object */}
       </div>
       <div id="keypad">
-        <button onClick={handleCounterClockwise} id="counterClockwiseBtn" >Counter clockwise</button>
-        <button onClick={handleClockwise} id="clockwiseBtn">Clockwise</button>
+        <button id="counterClockwiseBtn" onClick={moveCounterClockwise} >Counter clockwise</button>
+        <button id="clockwiseBtn" onClick= {moveClockwise}>Clockwise</button>
       </div>
     </div>
   )
 }
-
-const mapStateToProps = (state) => {
-  return {
-    wheel: state.wheel
+  const mapStateToProps = state => {
+    return {
+      wheel: state.wheel
+    }
   }
-}
 
-export default connect(mapStateToProps, {moveClockwise, moveCounterClockwise})(Wheel);
+  export default connect(mapStateToProps, {moveClockwise, moveCounterClockwise})(Wheel)

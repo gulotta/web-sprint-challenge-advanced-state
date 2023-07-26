@@ -1,61 +1,55 @@
-import React, {useEffect, useState} from 'react'
-import {connect} from 'react-redux';
-import { fetchQuiz, selectAnswer, postAnswer, setMessage} from '../state/action-creators'
+import React, {useEffect} from 'react'
+import {connect} from 'react-redux'
+import * as actionCreators from '../state/action-creators'
 
-const Quiz = (props) => {
-  const {quiz, selectedAnswer, fetchQuiz, selectAnswer, postAnswer} = props;
+function Quiz(props) {
+
+  const {quiz, fetchQuiz, selectAnswer, postAnswer, selectedAnswer} = props;
 
   useEffect(() => {
-    if (quiz === null){
     fetchQuiz();
+  }, [])
+
+  const select = (id) => {
+    selectAnswer(id)
   }
-}, [])
 
-const [selectedButton, setSelectedButton] = useState('c')
+  const submit = (evt) => {
+    evt.preventDefault();
+    postAnswer({
+      quiz_id: quiz.quiz_id,
+      answer_id: selectedAnswer
+    });
+  };
 
-const handleSubmit = () => {
-  postAnswer(selectedAnswer);
-  
-  setSelectedButton('c')
-}
 
-const handleChoiceA = () => {
-  selectAnswer({quiz_id: `${quiz.quiz.quiz_id}`, answer_id: `${quiz.quiz.answer_ids[0]}`});
-  setSelectedButton('a')
-}
 
-const handleChoiceB = () => {
-  selectAnswer({quiz_id: `${quiz.quiz.quiz_id}`, answer_id: `${quiz.quiz.answer_ids[1]}`})
-  setSelectedButton('b')
-
-}
 
   return (
     <div id="wrapper">
       {
         // quiz already in state? Let's use that, otherwise render "Loading next quiz..."
-        quiz !== null ? (
+        quiz ? (
           <>
-            <h2>{quiz.quiz.question}</h2>
+            <h2>{quiz.question}</h2>
 
             <div id="quizAnswers">
-              <div onClick={handleChoiceA} className={selectedButton !== 'a' ? 'answer' : 'answer selected'}>
-                {quiz.quiz.answers[0].text}
-                <button>
-                  {selectedButton !== 'a' ? 'Select' : 'SELECTED'}
+              <div className={ selectedAnswer === quiz.answers[0].answer_id ? "answer selected" : 'answer'}>
+                {quiz.answers[0].text}
+                <button onClick = {() => {select(quiz.answers[0].answer_id)}}>
+                  {selectedAnswer === quiz.answers[0].answer_id ? "SELECTED" : "Select"}
                 </button>
               </div>
 
-              <div onClick={handleChoiceB} className={selectedButton !== 'b' ? 'answer' : 'answer selected'}>
-                {quiz.quiz.answers[1].text}
-                <button>
-                  {selectedButton !== 'b' ? 'Select' : 'SELECTED'}
+              <div className={ selectedAnswer === quiz.answers[1].answer_id ? "answer selected" : 'answer'}>
+                {quiz.answers[1].text}
+                <button onClick = {() => {select(quiz.answers[1].answer_id)}}>
+                  {selectedAnswer === quiz.answers[1].answer_id ? "SELECTED" : "Select"}
                 </button>
               </div>
-              
-            </div>
+           </div>
 
-            <button id="submitAnswerBtn" disabled={selectedButton === 'a' || selectedButton === 'b' ? false: true} onClick={handleSubmit}>Submit answer</button>
+            <button id="submitAnswerBtn" disabled={!selectedAnswer} onClick={submit}>Submit answer</button>
           </>
         ) : 'Loading next quiz...'
       }
@@ -63,12 +57,4 @@ const handleChoiceB = () => {
   )
 }
 
-const mapStateToProps = (state) => {
-  return {
-    ...state,
-    quiz: state.quiz,
-    selectedAnswer: state.selectedAnswer
-  }
-}
-
-export default connect(mapStateToProps, {fetchQuiz, selectAnswer, postAnswer, setMessage})(Quiz);
+export default connect((st) => st, actionCreators)(Quiz)

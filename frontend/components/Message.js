@@ -1,22 +1,10 @@
 import React from 'react'
 import {connect} from 'react-redux'
+import * as actionCreators from '../state/action-creators'
 
-
-const Message = (props) => {
-  const {infoMessage, successMessage} = props
-
-  return <div id='message'>{successMessage}</div>,
-         <div id='message'>{infoMessage}</div>
-
+function Message(props) {
+  const {infoMessage} = props
+  return <div id="message">{infoMessage}</div>
 }
 
-const mapStateToProps = (state) => {
-  return {
-    ...state,
-    successMessage: state.successMessage,
-    infoMessage: state.infoMessage
-    
-  }
-}
-
-export default connect(mapStateToProps)(Message)
+export default connect((st) => st, actionCreators)(Message);

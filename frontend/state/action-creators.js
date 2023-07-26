@@ -1,47 +1,45 @@
-import * as actionTypes from "./action-types"
-import axios from 'axios';
-
 // ❗ You don't need to add extra action creators to achieve MVP
-export function moveClockwise() { 
-  return ({type: actionTypes.MOVE_CLOCKWISE})
-}
+import * as actionTypes from './action-types'
+import axios from 'axios'
 
-export function moveCounterClockwise() { 
-  return ({type: actionTypes.MOVE_COUNTERCLOCKWISE})
-}
-
-export function selectAnswer(obj) { 
-  return ({type: actionTypes.SET_SELECTED_ANSWER, payload: obj})
-}
-
-export function setMessage() {
-  return ({type: actionTypes.SET_INFO_MESSAGE})
+export function moveClockwise(value) {
+  return {type: actionTypes.MOVE_CLOCKWISE, payload: value}
  }
 
-export function setQuiz() { }
-
-export function changeTrue(text) {
-  return ({type: actionTypes.CHANGE_TRUE, payload: text})
- }
-
- export function changeFalse(text) {
-  return ({type: actionTypes.CHANGE_FALSE, payload: text})
- }
-
-export function changeQuestion(text) {
-  return ({type: actionTypes.CHANGE_QUESTION, payload: text})
+export function moveCounterClockwise(value) { 
+  return {type: actionTypes.MOVE_COUNTERCLOCKWISE, payload: value}
 }
+
+export function selectAnswer(value) { 
+  return {type: actionTypes.SET_SELECTED_ANSWER, payload: value}
+}
+
+export function setMessage(value) { 
+  return {type: actionTypes.SET_INFO_MESSAGE, payload: value}
+}
+
+export function setQuiz(value) { 
+  return {type: actionTypes.SET_QUIZ_INTO_STATE, payload: value}
+}
+
+export function inputChange(value) {
+  return {type: actionTypes.INPUT_CHANGE, payload: value}
+ }
 
 export function resetForm() {
-  return { type: actionTypes.RESET_FORM}
+  return {type: actionTypes.RESET_FORM}
  }
 
 // ❗ Async action creators
 export function fetchQuiz() {
   return function (dispatch) {
-    axios.get('http://localhost:9000/api/quiz/next')
+    const URL="http://localhost:9000/api/quiz/next"
+    axios.get(URL)
     .then(res => {
-      dispatch({type: actionTypes.SET_QUIZ_INTO_STATE, payload: res.data})
+      dispatch(setQuiz(res.data))
+    })
+    .catch(err => {
+      console.error(err)
     })
     // First, dispatch an action to reset the quiz state (so the "Loading next quiz..." message can display)
     // On successful GET:
@@ -50,11 +48,19 @@ export function fetchQuiz() {
 }
 export function postAnswer(obj) {
   return function (dispatch) {
-    axios.post('http://localhost:9000/api/quiz/answer', obj)
+    const URL="http://localhost:9000/api/quiz/answer"
+    axios.post(URL, {
+      quiz_id: obj.quiz_id, 
+      answer_id: obj.answer_id
+    })
     .then(res => {
-      dispatch({type: actionTypes.SET_INFO_MESSAGE, payload: res.data.message})
-      dispatch(fetchQuiz());
-      console.log(res.data)
+      dispatch(setQuiz(null))
+      dispatch(fetchQuiz())
+      dispatch(selectAnswer(null))
+      dispatch(setMessage(res.data.message))
+    })
+    .catch(err => {
+      console.error(err)
     })
     // On successful POST:
     // - Dispatch an action to reset the selected answer state
@@ -64,11 +70,21 @@ export function postAnswer(obj) {
 }
 export function postQuiz(obj) {
   return function (dispatch) {
-    axios.post('http://localhost:9000/api/quiz/new', obj)
-    .then(res => {
-      dispatch({type: actionTypes.SET_SUCCESS_MESSAGE, payload: obj.question_text})
-      console.log(res)
-    })
+    const URL="http://localhost:9000/api/quiz/new"
+    axios.post(
+      URL,  {
+        question_text: obj.question_text,
+        true_answer_text: obj.true_answer_text,
+        false_answer_text: obj.false_answer_text
+      })
+      .then(res => {
+        dispatch(setMessage(`Congrats: "${res.data.question} is a great question!`));
+        dispatch(resetForm());
+      })
+      .catch(err => {
+        console.error(err);
+      })
+
     // On successful POST:
     // - Dispatch the correct message to the the appropriate state
     // - Dispatch the resetting of the form
