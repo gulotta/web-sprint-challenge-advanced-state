@@ -78,7 +78,7 @@ export function postQuiz(obj) {
         false_answer_text: obj.false_answer_text
       })
       .then(res => {
-        dispatch(setMessage(`Congrats: "${res.data.question} is a great question!`));
+        dispatch(setMessage(`Congrats: "${res.data.question}" is a great question!`));
         dispatch(resetForm());
       })
       .catch(err => {
